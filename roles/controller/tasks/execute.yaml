@@ -9,6 +9,11 @@
   shell: $HOME/install-aws-cli.sh
   when: result is failed
 
+- name: Install Docker
+  become: true
+  become_user: ubuntu
+  shell: $HOME/install-docker.sh
+
 - name: Install jenkins
   become: true
   become_user: ubuntu
@@ -29,6 +34,13 @@
   become: true
   command: cat /var/lib/jenkins/secrets/initialAdminPassword
   register: jenkinsPassword
+
+- name: Allow docker access to jenkins
+  become: true
+  command: usermod -a -G docker jenkins
+  notify:
+    - restart jenkins
+
 
 - debug:
     msg:

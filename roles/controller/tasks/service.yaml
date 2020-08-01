@@ -1,4 +1,5 @@
 - name: Start Jenkins
+  become: yes
   service: 
     name: jenkins
     state: started

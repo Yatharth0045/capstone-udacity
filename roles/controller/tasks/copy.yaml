@@ -33,3 +33,15 @@
   file:
     path: $HOME/install-kubectl.sh
     mode: '777'
+
+- name: Copying docker script
+  copy:
+    src: install-docker.sh
+    dest: $HOME/install-docker.sh
+
+- name: Change permission of docker script to executable
+  become: true
+  become_user: ubuntu
+  file:
+    path: $HOME/install-docker.sh
+    mode: '777'
