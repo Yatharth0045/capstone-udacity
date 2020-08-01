@@ -23,8 +23,12 @@ pipeline {
         }
       }
     }
-    // stage ('Deploy Image to Kubernetes') {
-
-    // }
+    stage ('Deploy Image to Kubernetes') {
+      steps {
+        script {
+          kubectl --version --short
+        }
+      }
+    }
   }
 }
