@@ -1,0 +1,210 @@
+Parameters:
+
+  EnvironmentName:
+    Description: An environment name 
+    Type: String
+  
+  VpcCIDR:
+    Description: IP Range
+    Type: String
+    Default: 10.0.0.0/24
+
+  PublicSubnet:
+    Description: CIDR Block for Public Subnet 
+    Type: String
+    Default: 10.0.0.0/25 
+
+  PrivateSubnet:
+    Description: CIDR Block for Private Subnet
+    Type: String
+    Default: 10.0.0.128/25
+
+  ControllerKey:
+    Description: Key Pair for Controller Instance
+    Type: String
+    Default: udacity-project
+
+Resources:
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  VpcPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-Public-Subnet
+
+  VpcPrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PrivateSubnet
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-Private-Subnet
+
+  NatGatewayEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties: 
+      Domain: vpc
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId: !Ref VpcPublicSubnet
+      AllocationId: !GetAtt NatGatewayEIP.AllocationId
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-Public-Route-Table
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref VpcPublicSubnet
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-Private-Route-Table
+
+  DefaultPrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  PrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref VpcPrivateSubnet
+
+  ControllerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP, SSH and Jenkins Port
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+
+  ControllerNode:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0ac80df6eff0e70b5
+      InstanceType: t2.micro
+      KeyName: !Ref ControllerKey
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sda1"
+        Ebs: 
+          VolumeType: "gp2"
+          DeleteOnTermination: "true"
+          VolumeSize: "20"
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-Controller-Node
+      NetworkInterfaces:
+        - Description: "Primary Network Interface"
+          DeviceIndex: "0"
+          SubnetId: !Ref VpcPublicSubnet
+          GroupSet:
+          - Ref: ControllerSecurityGroup
+
+Outputs:
+
+  VPC:
+    Description: Ref to VPC
+    Value: !Ref VPC
+    Export: 
+      Name: !Sub ${EnvironmentName}-VpcID
+
+  VPCPublicRouteTable:
+    Description: Public Routing
+    Value: !Ref PublicRouteTable
+    Export:
+      Name: !Sub ${EnvironmentName}-PUB-RT
+
+  VPCPrivateRouteTable:
+    Description: Private routing
+    Value: !Ref PrivateRouteTable
+    Export:
+      Name: !Sub ${EnvironmentName}-PVT-RT
+
+  PublicSubnet:
+    Description: List of public subnet
+    Value: !Ref PublicSubnet
+    Export:
+      Name: !Sub ${EnvironmentName}-PUB-SUBNET
+
+  PrivateSubnet:
+    Description: List of private subnet
+    Value: !Ref PrivateSubnet
+    Export:
+      Name: !Sub ${EnvironmentName}-PVT-SUBNET
+
+  ControllerInstance:
+    Description: IP Address of Controller Node 
+    Value: !GetAtt ControllerNode.PublicIp
+    Export:
+      Name: !Sub ${EnvironmentName}-CONTROLLER-PUB-IP
