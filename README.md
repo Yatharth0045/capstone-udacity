@@ -8,29 +8,25 @@
 
  - Networking Setup
 
- > VPC
-
- > Public and Private Subnets
- 
- > InternetGateway
- 
- > NAT Gateway
- 
- > Route Tables
+ 	- VPC
+ 	- Public and Private Subnets
+ 	- InternetGateway
+ 	- NAT Gateway
+ 	- Route Tables
 
  - Compute Setup
 
- > Security Groups
- > EC2 Controller Node
+ 	- Security Groups
+ 	- EC2 Controller Node
 
 2. Configured controller node using Ansible:
 
  - Installed packages
 
- > Python
- > AWS-CLI v2
- > Jenkins
- > kubectl
+ 	- Python
+ 	- AWS-CLI v2
+ 	- Jenkins
+ 	- kubectl
 
 3. 
 
