@@ -7,5 +7,5 @@ curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s ht
 chmod +x ./kubectl
 
 ## Move Kubectl
-mv ./kubectl /usr/local/bin/kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
 
