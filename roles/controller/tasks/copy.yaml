@@ -1,0 +1,23 @@
+- name: Fetching aws-cli
+  copy:
+    src: install-aws-cli.sh
+    dest: $HOME/install-aws-cli.sh
+
+- name: Changing permission of aws script to executable
+  become: true
+  become_user: ubuntu
+  file:
+    path: $HOME/install-aws-cli.sh
+    mode: '777'
+
+- name: Copying jenkins installation script
+  copy:
+    src: install-jenkins.sh
+    dest: $HOME/install-jenkins.sh
+
+- name: Change permission of jenkins script to executable
+  become: true
+  become_user: ubuntu
+  file:
+    path: $HOME/install-jenkins.sh
+    mode: '777'

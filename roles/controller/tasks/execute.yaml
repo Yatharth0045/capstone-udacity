@@ -1,0 +1,31 @@
+- name: Checking if aws exists
+  command: aws --version
+  register: result
+  ignore_errors: True
+
+- name: Install aws-cli
+  become: true
+  become_user: ubuntu
+  shell: $HOME/install-aws-cli.sh
+  when: result is failed
+
+- name: Install jenkins
+  become: true
+  become_user: ubuntu
+  shell: $HOME/install-jenkins.sh
+
+- name: Fetching jenkins hostname
+  command: 
+    cmd: curl ifconfig.me
+    warn: false
+  register: jenkinsHost
+
+- name: Fetching jenkins initial Password
+  become: true
+  command: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: jenkinsPassword
+
+- debug:
+    msg:
+    - "Jenkins Hostname: {{ jenkinsHost.stdout }}:8080"
+    - "Initial Password for jenkins: {{ jenkinsPassword.stdout }}" 

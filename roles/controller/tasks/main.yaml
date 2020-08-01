@@ -1,0 +1,4 @@
+---
+- include: copy.yaml
+- include: execute.yaml
+- include: service.yaml

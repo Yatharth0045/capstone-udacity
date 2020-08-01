@@ -1,0 +1,5 @@
+# Setup Controller node
+
+- hosts: udacity
+  roles:
+    - controller
