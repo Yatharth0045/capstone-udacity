@@ -8,14 +8,18 @@ pipeline {
     }
     stage ('Build Docker image') {
       steps {
-        service = docker.build("yatharth0045/my-application")
+        script{
+          service = docker.build("yatharth0045/my-application")
+        }
       }
     }
     stage ('Push Image to DockerHub') {
       steps {
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-            service.push("${env.BUILD_NUMBER}")
-            service.push("latest")
+        script{
+          docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+              service.push("${env.BUILD_NUMBER}")
+              service.push("latest")
+          }
         }
       }
     }
