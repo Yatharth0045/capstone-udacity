@@ -21,3 +21,15 @@
   file:
     path: $HOME/install-jenkins.sh
     mode: '777'
+
+- name: Copying kubectl script
+  copy:
+    src: install-kubectl.sh
+    dest: $HOME/install-kubectl.sh
+
+- name: Change permission of kubectl script to executable
+  become: true
+  become_user: ubuntu
+  file:
+    path: $HOME/install-kubectl.sh
+    mode: '777'

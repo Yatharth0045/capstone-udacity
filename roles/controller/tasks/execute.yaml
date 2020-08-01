@@ -14,6 +14,11 @@
   become_user: ubuntu
   shell: $HOME/install-jenkins.sh
 
+- name: Install kubectl
+  become: true
+  become_user: ubuntu
+  shell: $HOME/install-kubectl.sh
+
 - name: Fetching jenkins hostname
   command: 
     cmd: curl ifconfig.me
