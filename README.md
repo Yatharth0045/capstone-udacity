@@ -9,9 +9,13 @@
  - Networking Setup
 
  > VPC
+
  > Public and Private Subnets
+ 
  > InternetGateway
+ 
  > NAT Gateway
+ 
  > Route Tables
 
  - Compute Setup
