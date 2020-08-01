@@ -4,7 +4,7 @@
 
 ### Contents
 
-1. Setup Infrastructure using AWS CloudFormation which includes:
+##### 1. Setup Infrastructure using AWS CloudFormation which includes:
 
  - Networking Setup
 
@@ -19,7 +19,7 @@
  	- Security Groups
  	- EC2 Controller Node
 
-2. Configured controller node using Ansible:
+##### 2. Configured controller node using Ansible:
 
  - Installed packages
 
@@ -27,8 +27,6 @@
  	- AWS-CLI v2
  	- Jenkins
  	- kubectl
-
-3. 
 
 ### Steps to run this project:
 
