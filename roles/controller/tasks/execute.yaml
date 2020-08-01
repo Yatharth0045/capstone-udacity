@@ -41,7 +41,6 @@
   notify:
     - restart jenkins
 
-
 - debug:
     msg:
     - "Jenkins Hostname: {{ jenkinsHost.stdout }}:8080"
