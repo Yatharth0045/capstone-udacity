@@ -6,27 +6,27 @@
 
 1. Setup Infrastructure using AWS CloudFormation which includes:
 
- > Networking Setup
+ - Networking Setup
 
- - VPC
- - Public and Private Subnets
- - InternetGateway
- - NAT Gateway
- - Route Tables
+ > VPC
+ > Public and Private Subnets
+ > InternetGateway
+ > NAT Gateway
+ > Route Tables
 
- > Compute Setup
+ - Compute Setup
 
- - Security Groups
- - EC2 Controller Node
+ > Security Groups
+ > EC2 Controller Node
 
 2. Configured controller node using Ansible:
 
- > Installed packages
+ - Installed packages
 
- - Python
- - AWS-CLI v2
- - Jenkins
- - kubectl
+ > Python
+ > AWS-CLI v2
+ > Jenkins
+ > kubectl
 
 3. 
 
