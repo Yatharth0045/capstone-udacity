@@ -25,7 +25,7 @@ pipeline {
     }
     stage ('Deploy Image to Kubernetes') {
       steps {
-        sh label: 'kubectl-deploy', script: 'kubectl --version --short'
+        sh label: 'kubectl-deploy', script: 'kubectl version --short --client'
       }
     }
   }
