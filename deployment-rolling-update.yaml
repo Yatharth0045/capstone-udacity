@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udacity-application
+  labels:
+    app: myapp-deployment
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 50%
+    maxSurge: 50%
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: my-svc
+        image: yatharth0045/my-application:latest
+        ports:
+        - containerPort: 80
