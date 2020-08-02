@@ -20,5 +20,6 @@ spec:
       containers:
       - name: my-svc
         image: yatharth0045/my-application:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
