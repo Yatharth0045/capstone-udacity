@@ -8,8 +8,6 @@ metadata:
 spec:
   strategy:
     type: RollingUpdate
-    rollingUpdate: 50%
-    maxSurge: 50%
   replicas: 3
   selector:
     matchLabels:
