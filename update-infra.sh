@@ -3,4 +3,4 @@ aws cloudformation update-stack \
 	--template-body file://infra-cloudformation.yaml \
 	--parameters file://infra-vars.json \
 	--region=us-east-1 \
-	--capabilities CAPABILITY_IAM
+	--capabilities CAPABILITY_NAMED_IAM

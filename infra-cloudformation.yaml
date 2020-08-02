@@ -125,10 +125,32 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref VpcPrivateSubnet
 
+  ContollerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  ControllerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: ControllerProfile
+      Roles: 
+        - Ref: ContollerRole
+
   ControllerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, SSH and Jenkins Port
+      GroupDescription: Allow HTTP, HTTPS, SSH and Jenkins Port
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -143,6 +165,10 @@ Resources:
           FromPort: 8080
           ToPort: 8080
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref VpcCIDR
       SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 0
@@ -155,6 +181,7 @@ Resources:
       ImageId: ami-0ac80df6eff0e70b5
       InstanceType: t2.micro
       KeyName: !Ref ControllerKey
+      IamInstanceProfile: !Ref ControllerInstanceProfile
       BlockDeviceMappings:
       - DeviceName: "/dev/sda1"
         Ebs: 
@@ -170,6 +197,40 @@ Resources:
           SubnetId: !Ref VpcPublicSubnet
           GroupSet:
           - Ref: ControllerSecurityGroup
+
+  EksClusterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - eks.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+
+  ControlPlaneSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cluster communication with worker nodes
+      VpcId: !Ref VPC
+
+  MyEKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: udacity-eks-cluster
+      Version: 1.17
+      RoleArn: !GetAtt EksClusterRole.Arn
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - Ref: ControlPlaneSecurityGroup
+        SubnetIds:
+          - Ref: VpcPublicSubnet
+          - Ref: VpcPrivateSubnet
 
 Outputs:
 
@@ -208,3 +269,21 @@ Outputs:
     Value: !GetAtt ControllerNode.PublicIp
     Export:
       Name: !Sub ${EnvironmentName}-CONTROLLER-PUB-IP
+
+  EKSRoleArn:
+    Description: The role that Amazon EKS will use to create AWS resources for Kubernetes clusters
+    Value: !GetAtt EksClusterRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-EKS-ROLE-ARN"
+
+  ContorllerRoleArn:
+    Description: The role that Amazon EKS will use to create AWS resources for Kubernetes clusters
+    Value: !GetAtt ContollerRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CONTROLLER-ROLE-ARN"
+
+  EksEndpoint:
+    Description: EKS Endpoint
+    Value: !GetAtt MyEKSCluster.Endpoint
+    Export:
+      Name: !Sub ${EnvironmentName}-EKS-ENDPOINT
