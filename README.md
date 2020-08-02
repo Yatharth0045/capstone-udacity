@@ -17,6 +17,9 @@ Contents
  	- Security Groups
  	- EC2 Controller Node
 
+ - **EKS**
+   - EKS Cluster
+
 ##### 2. Configured controller node using Ansible:
 
  - **Installed packages**
@@ -46,11 +49,19 @@ Contents
 
 4. Now run **`bash create-infra.sh`**. Now head to **cloudFormation** service in AWS Console and you will see a new stack with name ***udacity-capstone*** is creating.
 5. After the stack has been created, in the output section, you will get the **Public IP** of the **controller instance**.
-6. Replace this IP in **roles/inventory.ini** as **`ubuntu@<public-ip>`** 
+6. Replace this IP in **roles/inventory.ini** as **`ubuntu@<public-ip>`**
+7. This will turn up the following components
+ - VPC
+ - Public and Private Subnet in 2 different AZs
+ - Internet Gateway
+ - Nat Gateway
+ - RouteTable
+ - ControllerNode
+ - EKS Cluster
 
 ##### Turn Up EKS
 
-7. On **AWS Console**, Go to IAM Role and create a new role for **EKS**. Now go to EKS section and create an **EKS Cluster** and **NodeGroup**. Attach **IAM Role** to your controller node for the access of **EKS Cluster**.
+7. On **AWS Console**, Go to EKS section and create **NodeGroup**. Attach the required **IAM Role** to the NodeGroup and test them using the command `kubetl get nodes`
 
 ##### Setup Jenkins
 
